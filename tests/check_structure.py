@@ -21,6 +21,7 @@ REQUIRED = [
     "tests/run.sh",
     "hooks/stop-gate.sh",
     "hooks/lib/telemetry.sh",
+    "hooks/bash-discipline.sh",
 ]
 
 

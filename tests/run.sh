@@ -69,6 +69,16 @@ if grep -q '"hook":"stop-gate"' "$FABLE_TELEMETRY_FILE" 2>/dev/null; then
   PASS=$((PASS+1)); echo "PASS: telemetry line written"
 else FAIL=$((FAIL+1)); echo "FAIL: telemetry line written"; fi
 
+echo "== bash-discipline =="
+bd_stdin() { printf '{"session_id":"test","tool_name":"Bash","tool_input":{"command":"%s"}}' "$1" > "$TMP/bd.json"; echo "$TMP/bd.json"; }
+check "denies cat file"          "$(bd_stdin 'cat src/app.py')"            deny  "$HOOKS/bash-discipline.sh"
+check "denies head -n"           "$(bd_stdin 'head -n 50 README.md')"      deny  "$HOOKS/bash-discipline.sh"
+check "denies sed -n range"      "$(bd_stdin "sed -n '10,20p' src/app.py")" deny "$HOOKS/bash-discipline.sh"
+check "allows cat into pipe"     "$(bd_stdin 'cat data.csv | wc -l')"      empty "$HOOKS/bash-discipline.sh"
+check "allows redirect"          "$(bd_stdin 'cat a.txt b.txt > merged.txt')" empty "$HOOKS/bash-discipline.sh"
+check "allows unrelated command" "$(bd_stdin 'make test')"                 empty "$HOOKS/bash-discipline.sh"
+check "fails open on garbage"    "$TMP/garbage.json"                       empty "$HOOKS/bash-discipline.sh"
+
 echo ""
 echo "== results: $PASS passed, $FAIL failed =="
 [ $FAIL -eq 0 ]
