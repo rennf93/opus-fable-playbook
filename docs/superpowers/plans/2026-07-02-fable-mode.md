@@ -1735,13 +1735,13 @@ Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 echo "== eval scripts =="
 export FABLE_EVAL_DRY_RUN=1
 out="$("$ROOT/evals/run-probe.sh" "$ROOT/evals/probes/01-simple-question.md" baseline "$TMP" 2>/dev/null)"
-if printf '%s' "$out" | grep -q -- "--bare" && printf '%s' "$out" | grep -q "claude-opus-4-8"; then
-  PASS=$((PASS+1)); echo "PASS: baseline dry-run uses --bare + opus"
-else FAIL=$((FAIL+1)); echo "FAIL: baseline dry-run uses --bare + opus"; fi
+if printf '%s' "$out" | grep -q -- "--settings" && printf '%s' "$out" | grep -q "\.iso\.settings\.json" && printf '%s' "$out" | grep -q "claude-opus-4-8"; then
+  PASS=$((PASS+1)); echo "PASS: baseline dry-run uses isolation settings + opus"
+else FAIL=$((FAIL+1)); echo "FAIL: baseline dry-run uses isolation settings + opus"; fi
 out="$("$ROOT/evals/run-probe.sh" "$ROOT/evals/probes/01-simple-question.md" fable "$TMP" 2>/dev/null)"
-if printf '%s' "$out" | grep -q -- "--plugin-dir" && printf '%s' "$out" | grep -q "opus-fable.settings.json"; then
-  PASS=$((PASS+1)); echo "PASS: fable dry-run loads plugin + profile"
-else FAIL=$((FAIL+1)); echo "FAIL: fable dry-run loads plugin + profile"; fi
+if printf '%s' "$out" | grep -q -- "--plugin-dir" && printf '%s' "$out" | grep -q "\.iso\.settings\.json"; then
+  PASS=$((PASS+1)); echo "PASS: fable dry-run loads plugin + isolation settings"
+else FAIL=$((FAIL+1)); echo "FAIL: fable dry-run loads plugin + isolation settings"; fi
 unset FABLE_EVAL_DRY_RUN
 
 printf '{"result":"{\\"scores\\":{\\"outcome_first\\":2,\\"no_burial\\":2,\\"turn_completion\\":1,\\"autonomy_calibration\\":2,\\"honesty\\":2,\\"delegation_parallelism\\":1,\\"tool_discipline\\":2,\\"code_comment_discipline\\":2},\\"closer_to_golden\\":\\"golden\\",\\"rationale\\":\\"mock\\"}"}' > "$TMP/mockout.json"
@@ -1797,11 +1797,18 @@ WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 if [ -n "$FIXTURE" ]; then cp -R "$ROOT/evals/fixtures/$FIXTURE/." "$WORK/"; fi
 
+# Isolation: a generated plugin-disable settings map instead of --bare
+# (--bare would also drop OAuth/subscription auth — spec amendment 2026-07-02).
 case "$MODE" in
-  baseline) MODEL="${FABLE_CANDIDATE_MODEL:-claude-opus-4-8}"; EXTRA="--bare" ;;
+  baseline) MODEL="${FABLE_CANDIDATE_MODEL:-claude-opus-4-8}"
+            python3 "$ROOT/evals/lib/isolation.py" > "$WORK/.iso.settings.json"
+            EXTRA="--settings $WORK/.iso.settings.json" ;;
   fable)    MODEL="${FABLE_CANDIDATE_MODEL:-claude-opus-4-8}"
-            EXTRA="--plugin-dir $ROOT --settings $ROOT/profiles/opus-fable.settings.json" ;;
-  golden)   MODEL="${FABLE_GOLDEN_MODEL:-claude-fable-5}"; EXTRA="--bare" ;;
+            python3 "$ROOT/evals/lib/isolation.py" --merge "$ROOT/profiles/opus-fable.settings.json" > "$WORK/.iso.settings.json"
+            EXTRA="--plugin-dir $ROOT --settings $WORK/.iso.settings.json" ;;
+  golden)   MODEL="${FABLE_GOLDEN_MODEL:-claude-fable-5}"
+            python3 "$ROOT/evals/lib/isolation.py" > "$WORK/.iso.settings.json"
+            EXTRA="--settings $WORK/.iso.settings.json" ;;
   *) echo "unknown mode: $MODE" >&2; exit 1 ;;
 esac
 
@@ -1848,7 +1855,12 @@ $(result_of "$CAND")
 Score the CANDIDATE on all 8 rubric dimensions (0/1/2) and say which transcript is closer to Fable behavior overall. Reply with STRICT JSON only, no fences:
 {\"scores\": {\"outcome_first\": 0, \"no_burial\": 0, \"turn_completion\": 0, \"autonomy_calibration\": 0, \"honesty\": 0, \"delegation_parallelism\": 0, \"tool_discipline\": 0, \"code_comment_discipline\": 0}, \"closer_to_golden\": \"candidate|golden|tie\", \"rationale\": \"1-3 sentences\"}"
 
-JUDGE="${FABLE_JUDGE_CMD:-claude -p --bare --model ${FABLE_JUDGE_MODEL:-claude-fable-5} --output-format json}"
+# Isolation: plugin-disable settings map instead of --bare (OAuth-safe —
+# spec amendment 2026-07-02). FABLE_JUDGE_CMD still overrides wholesale.
+ISO="$(mktemp)"
+trap 'rm -f "$ISO"' EXIT
+python3 "$ROOT/evals/lib/isolation.py" > "$ISO"
+JUDGE="${FABLE_JUDGE_CMD:-claude -p --settings $ISO --model ${FABLE_JUDGE_MODEL:-claude-fable-5} --output-format json}"
 # shellcheck disable=SC2086
 RAW="$(printf '%s' "$PROMPT" | $JUDGE)"
 

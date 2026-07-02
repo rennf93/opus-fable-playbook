@@ -23,11 +23,18 @@ WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 if [ -n "$FIXTURE" ]; then cp -R "$ROOT/evals/fixtures/$FIXTURE/." "$WORK/"; fi
 
+# Isolation: a generated plugin-disable settings map instead of --bare
+# (--bare would also drop OAuth/subscription auth — spec amendment 2026-07-02).
 case "$MODE" in
-  baseline) MODEL="${FABLE_CANDIDATE_MODEL:-claude-opus-4-8}"; EXTRA="--bare" ;;
+  baseline) MODEL="${FABLE_CANDIDATE_MODEL:-claude-opus-4-8}"
+            python3 "$ROOT/evals/lib/isolation.py" > "$WORK/.iso.settings.json"
+            EXTRA="--settings $WORK/.iso.settings.json" ;;
   fable)    MODEL="${FABLE_CANDIDATE_MODEL:-claude-opus-4-8}"
-            EXTRA="--plugin-dir $ROOT --settings $ROOT/profiles/opus-fable.settings.json" ;;
-  golden)   MODEL="${FABLE_GOLDEN_MODEL:-claude-fable-5}"; EXTRA="--bare" ;;
+            python3 "$ROOT/evals/lib/isolation.py" --merge "$ROOT/profiles/opus-fable.settings.json" > "$WORK/.iso.settings.json"
+            EXTRA="--plugin-dir $ROOT --settings $WORK/.iso.settings.json" ;;
+  golden)   MODEL="${FABLE_GOLDEN_MODEL:-claude-fable-5}"
+            python3 "$ROOT/evals/lib/isolation.py" > "$WORK/.iso.settings.json"
+            EXTRA="--settings $WORK/.iso.settings.json" ;;
   *) echo "unknown mode: $MODE" >&2; exit 1 ;;
 esac
 

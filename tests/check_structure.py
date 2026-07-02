@@ -37,6 +37,7 @@ REQUIRED = [
     "evals/run-probe.sh",
     "evals/judge.sh",
     "evals/report.sh",
+    "evals/lib/isolation.py",
 ]
 
 
