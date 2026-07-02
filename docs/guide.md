@@ -140,7 +140,7 @@ plugin-enabled session would be redundant there.
 | `prompt-nudge.sh` | `UserPromptSubmit` | none |
 | `precompact.sh` | `PreCompact`, matcher `manual\|auto` | none |
 
-Only the first three log telemetry (section 7); `session-start.sh`,
+Only the first four rows log telemetry (section 7); `session-start.sh`,
 `prompt-nudge.sh`, and `precompact.sh` never call `fable_telemetry`.
 
 **stop-gate.sh** (main mode) — checks whether the final paragraph of your
@@ -232,9 +232,10 @@ backstop.
 - **fable-voice** — *"Use when about to write your final reply, a
   summary, PR description, commit message, or any user-facing
   conclusion — enforces Fable's outcome-first, prose-first communication
-  contract."* A five-point checklist over your draft final message
+  contract."* A six-point checklist over your draft final message
   (outcome first, complete, prose first, sentences not fragments,
-  selective not compressed) with worked bad-to-good examples.
+  selective not compressed, no hedging on verified facts or claims on
+  unverified ones) with worked bad-to-good examples.
 - **fable-fanout** — *"Use when a task involves 2+ independent units of
   work (files, modules, questions) or any broad codebase sweep —
   enforces Fable's delegation-first parallel orchestration."* A decision
@@ -518,11 +519,12 @@ trusting the warning alone.
 for the session (`/plugin`, or that your `--plugin-dir` path points at
 the repo root — the directory containing `.claude-plugin/plugin.json`,
 not a parent or subdirectory); the hook scripts are executable
-(`ls -la hooks/*.sh` — all seven need the `x` bit). `tests/check_structure.py`
-enforces the executable bit on every hook `hooks/hooks.json` references
-and fails outright if one is missing or not executable, so a broken
-checkout usually surfaces there first — run it directly to check:
-`python3 tests/check_structure.py`.
+(`ls -la hooks/*.sh` — all six files need the `x` bit; `stop-gate.sh`
+alone backs both the `Stop` and `SubagentStop` registrations, seven in
+total). `tests/check_structure.py` enforces the executable bit on every
+hook `hooks/hooks.json` references and fails outright if one is missing
+or not executable, so a broken checkout usually surfaces there first —
+run it directly to check: `python3 tests/check_structure.py`.
 
 **Platform.** macOS and Linux only (bash + python3 stdlib, no other
 dependencies); `tests/run.sh` is written to be bash-3.2 compatible
