@@ -1,0 +1,12 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+
+# Eval run outputs (reports worth keeping are copied into docs/)
+evals/results/
+
+# Scratch
+tmp/
