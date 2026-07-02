@@ -1849,10 +1849,14 @@ Score the CANDIDATE on all 8 rubric dimensions (0/1/2) and say which transcript 
 {\"scores\": {\"outcome_first\": 0, \"no_burial\": 0, \"turn_completion\": 0, \"autonomy_calibration\": 0, \"honesty\": 0, \"delegation_parallelism\": 0, \"tool_discipline\": 0, \"code_comment_discipline\": 0}, \"closer_to_golden\": \"candidate|golden|tie\", \"rationale\": \"1-3 sentences\"}"
 
 JUDGE="${FABLE_JUDGE_CMD:-claude -p --bare --model ${FABLE_JUDGE_MODEL:-claude-fable-5} --output-format json}"
+# shellcheck disable=SC2086
 RAW="$(printf '%s' "$PROMPT" | $JUDGE)"
 
 OUT="$OUTDIR/$ID.$CMODE.verdict.json"
-printf '%s' "$RAW" | python3 - "$OUT" <<'PY'
+# python3 - <<PY reads its OWN program from stdin, so it can't also read $RAW
+# from a preceding pipe on the same fd (stdin.read() would see EOF). Feed the
+# heredoc body via -c (command substitution) instead, leaving stdin free.
+printf '%s' "$RAW" | python3 -c "$(cat <<'PY'
 import json, re, sys
 raw = sys.stdin.read()
 try:
@@ -1865,6 +1869,7 @@ assert set(verdict) >= {"scores", "closer_to_golden"}, "bad verdict shape"
 json.dump(verdict, open(sys.argv[1], "w"), indent=2)
 print("wrote", sys.argv[1])
 PY
+)" "$OUT"
 ```
 
 - [ ] **Step 4: Implement `evals/report.sh`**
