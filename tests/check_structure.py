@@ -13,6 +13,7 @@ REQUIRED = [
     ".claude-plugin/plugin.json",
     "LICENSE",
     "README.md",
+    "output-styles/fable.md",
 ]
 
 
