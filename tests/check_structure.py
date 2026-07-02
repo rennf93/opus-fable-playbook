@@ -30,6 +30,8 @@ REQUIRED = [
     "skills/fable-voice/SKILL.md",
     "skills/fable-fanout/SKILL.md",
     "skills/fable-turn-check/SKILL.md",
+    "agents/critic.md",
+    "commands/fable-status.md",
 ]
 
 
