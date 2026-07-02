@@ -3,7 +3,7 @@
 # Fail-open: never returns nonzero, never prints.
 fable_telemetry() {
   [ "${FABLE_TELEMETRY:-1}" = "0" ] && return 0
-  _ft_file="${FABLE_TELEMETRY_FILE:-$HOME/.claude/fable-mode/telemetry.jsonl}"
+  _ft_file="${FABLE_TELEMETRY_FILE:-${HOME:-/tmp}/.claude/fable-mode/telemetry.jsonl}"
   {
     mkdir -p "$(dirname "$_ft_file")" &&
     printf '{"ts":"%s","hook":"%s","pattern":"%s","session_id":"%s"}\n' \

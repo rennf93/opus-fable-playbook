@@ -63,6 +63,7 @@ check "allows when stop_hook_active" "$(stop_stdin "$FIX/transcript-promise.json
 check "subagent mode blocks promise" "$(stop_stdin "$FIX/transcript-promise.jsonl")" block "$HOOKS/stop-gate.sh" subagent
 printf 'not json' > "$TMP/garbage.json"
 check "fails open on garbage stdin" "$TMP/garbage.json" empty "$HOOKS/stop-gate.sh"
+check "blocks without HOME set" "$(stop_stdin "$FIX/transcript-promise.jsonl")" block env -u HOME -u FABLE_TELEMETRY_FILE "$HOOKS/stop-gate.sh"
 
 if grep -q '"hook":"stop-gate"' "$FABLE_TELEMETRY_FILE" 2>/dev/null; then
   PASS=$((PASS+1)); echo "PASS: telemetry line written"
