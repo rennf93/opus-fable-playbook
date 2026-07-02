@@ -532,9 +532,13 @@ specifically because macOS's `/bin/bash` is still 3.2. Windows is
 untested (WSL should work, since it's Linux underneath, but nobody's
 verified it).
 
-**Disabling.** `/plugin` → disable fable-mode; unset `outputStyle` in
-settings if you'd set it. This turns off the hooks and the doctrine
-injection without uninstalling anything.
+**Disabling and uninstalling.** To turn off the hooks and doctrine
+injection without uninstalling, run `/plugin disable
+fable-mode@opus-fable-playbook` and unset `outputStyle` in settings if
+you'd set it. To remove the plugin entirely, `/plugin uninstall
+fable-mode@opus-fable-playbook`; to also drop the marketplace, `/plugin
+marketplace remove opus-fable-playbook` — removal takes the marketplace
+name, not the `owner/repo` shorthand (that form is only for adding).
 
 ## 13. Composition with superpowers
 
