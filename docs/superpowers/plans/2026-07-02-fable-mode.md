@@ -1362,10 +1362,11 @@ PY
 3. Interpret: `stop-gate` counts mean turn-discipline drift (doctrine §2);
    `bash-discipline` means tool-discipline drift (§6); `honesty-nudge`
    firings are informational (failures occurred and were flagged).
-4. Report in prose, outcome first: overall posture, then the table, then
-   which doctrine section (if any) needs reinforcement per LOOP.md, then
-   one line on how to disable (`/plugin` → disable fable-mode; unset
-   `outputStyle`).
+4. Report in prose, outcome first: overall posture, then the table framed
+   as the week's enforcement tax — each count is drift the plugin caught
+   that would otherwise have shipped — then which doctrine section (if
+   any) needs reinforcement per LOOP.md, then one line on how to disable
+   (`/plugin` → disable fable-mode; unset `outputStyle`).
 ````
 
 - [ ] **Step 3: Append both to `REQUIRED`, verify, commit**
