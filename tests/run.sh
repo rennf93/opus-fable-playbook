@@ -88,6 +88,29 @@ check "fires on traceback"       "$(hn_stdin '"Traceback (most recent call last)
 check "silent on passing output" "$(hn_stdin '"42 passed in 3.1s"')"                                empty   "$HOOKS/honesty-nudge.sh"
 check "silent on garbage"        "$TMP/garbage.json"                                                empty   "$HOOKS/honesty-nudge.sh"
 
+echo "== session/prompt/precompact =="
+printf '{"session_id":"test","source":"startup"}' > "$TMP/ss.json"
+check "session-start emits card" "$TMP/ss.json" context "$HOOKS/session-start.sh"
+out="$("$HOOKS/session-start.sh" < "$TMP/ss.json" 2>/dev/null)"
+if printf '%s' "$out" | grep -q "fable-doctrine-card"; then
+  PASS=$((PASS+1)); echo "PASS: card content present"
+else FAIL=$((FAIL+1)); echo "FAIL: card content present"; fi
+
+pn_stdin() { printf '{"session_id":"test","prompt":%s}' "$1" > "$TMP/pn.json"; echo "$TMP/pn.json"; }
+check "prompt nudge on statement"  "$(pn_stdin '"refactor the auth module"')" context "$HOOKS/prompt-nudge.sh"
+check "skips slash commands"       "$(pn_stdin '"/fable-status"')"            empty   "$HOOKS/prompt-nudge.sh"
+out="$("$HOOKS/prompt-nudge.sh" < "$(pn_stdin '"why is the deploy failing?"')" 2>/dev/null)"
+if printf '%s' "$out" | grep -q "question-shaped"; then
+  PASS=$((PASS+1)); echo "PASS: question heuristic fires"
+else FAIL=$((FAIL+1)); echo "FAIL: question heuristic fires"; fi
+out="$("$HOOKS/prompt-nudge.sh" < "$(pn_stdin '"add a retry to the client"')" 2>/dev/null)"
+if printf '%s' "$out" | grep -q "question-shaped"; then
+  FAIL=$((FAIL+1)); echo "FAIL: question heuristic silent on imperative"
+else PASS=$((PASS+1)); echo "PASS: question heuristic silent on imperative"; fi
+
+printf '{"session_id":"test","trigger":"auto"}' > "$TMP/pc.json"
+check "precompact emits guidance" "$TMP/pc.json" context "$HOOKS/precompact.sh"
+
 echo ""
 echo "== results: $PASS passed, $FAIL failed =="
 [ $FAIL -eq 0 ]

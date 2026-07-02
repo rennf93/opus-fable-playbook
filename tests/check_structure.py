@@ -23,6 +23,9 @@ REQUIRED = [
     "hooks/lib/telemetry.sh",
     "hooks/bash-discipline.sh",
     "hooks/honesty-nudge.sh",
+    "hooks/session-start.sh",
+    "hooks/prompt-nudge.sh",
+    "hooks/precompact.sh",
 ]
 
 
