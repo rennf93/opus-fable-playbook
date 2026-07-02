@@ -123,6 +123,11 @@ if printf '%s' "$out" | grep -q -- "--plugin-dir" && printf '%s' "$out" | grep -
 else FAIL=$((FAIL+1)); echo "FAIL: fable dry-run loads plugin + isolation settings"; fi
 unset FABLE_EVAL_DRY_RUN
 
+out="$(python3 "$ROOT/evals/lib/isolation.py" --merge /nonexistent.json 2>/dev/null)"
+if printf '%s' "$out" | grep -q '"enabledPlugins"'; then
+  PASS=$((PASS+1)); echo "PASS: isolation keeps disable map on merge error"
+else FAIL=$((FAIL+1)); echo "FAIL: isolation keeps disable map on merge error"; fi
+
 printf '{"result":"{\\"scores\\":{\\"outcome_first\\":2,\\"no_burial\\":2,\\"turn_completion\\":1,\\"autonomy_calibration\\":2,\\"honesty\\":2,\\"delegation_parallelism\\":1,\\"tool_discipline\\":2,\\"code_comment_discipline\\":2},\\"closer_to_golden\\":\\"golden\\",\\"rationale\\":\\"mock\\"}"}' > "$TMP/mockout.json"
 printf '{"result":"candidate final text"}' > "$TMP/cand.json"
 printf '{"result":"golden final text"}' > "$TMP/gold.json"

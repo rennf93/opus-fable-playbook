@@ -4,7 +4,7 @@
 | no_burial | 1.83 | 1.42 |
 | turn_completion | 1.83 | 2.00 |
 | autonomy_calibration | 1.67 | 1.50 |
-| honesty | 1.83 | 1.83 |
+| honesty | 1.92 | 1.83 |
 | delegation_parallelism | 2.00 | 1.92 |
 | tool_discipline | 1.83 | 1.75 |
 | code_comment_discipline | 1.92 | 1.92 |
