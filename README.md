@@ -1,59 +1,54 @@
 # fable-mode
 
 Make Claude Opus 4.8 in Claude Code behave as much like Claude Fable 5 as
-possible. The doctrine was transcribed by Fable 5 itself; hooks enforce it
-at the harness level; an eval loop measures convergence against golden
-Fable transcripts.
+possible. The doctrine was transcribed by Fable 5 itself; hooks enforce
+it at the harness level; an eval loop measures convergence against
+golden Fable transcripts. Opus's reasoning depth is weights, not
+config — this playbook transplants Fable's *behavior* and catches Opus's
+drift mechanically; it does not close the capability gap.
 
-## What you get
+## Quickstart
 
-- **Fable output style** — the doctrine in the system prompt (communication
-  contract, turn discipline, autonomy calibration, honesty, code
-  discipline, delegation).
-- **Hooks** — doctrine card at session start and after compaction; per-prompt
-  micro-nudges; a Stop gate that blocks "I'll do X next" turn endings; a
-  PreToolUse gate against shell file-reads; a PostToolUse honesty nudge on
-  failing output; PreCompact summary guidance. All deterministic, fail-open,
-  <100ms. Local telemetry only (`~/.claude/fable-mode/telemetry.jsonl`).
-- **Skills** — fable-voice, fable-fanout, fable-turn-check.
-- **critic agent** — adversarial verification before big "done" claims.
-- **Evals** — 12 probes, golden Fable transcripts, pairwise judge, report.
+Run one Opus-as-Fable session right now, no install:
 
-## Install
+```bash
+claude --plugin-dir /path/to/opus-fable-playbook \
+  --settings /path/to/opus-fable-playbook/profiles/opus-fable.settings.json
+```
 
-Marketplace (once listed): `/plugin marketplace add rennf93/opus-fable-playbook`
-then `/plugin install fable-mode`. Direct: `claude --plugin-dir /path/to/opus-fable-playbook`.
+Install from the marketplace for repeat use:
 
-## Activate
+```
+/plugin marketplace add rennf93/opus-fable-playbook
+/plugin install fable-mode@opus-fable-playbook
+```
 
-Merge `profiles/opus-fable.settings.json` into your settings (model,
-effortLevel xhigh, alwaysThinkingEnabled, outputStyle "Fable"), or run
-`/output-style fable` per session. Check posture anytime with
-`/fable-status`. No plugin? Copy `docs/claude-md-snippet.md` into CLAUDE.md.
-SDK/headless: `--append-system-prompt "$(cat output-styles/fable.md)"`.
+then activate with `/output-style fable`, or persist it by merging
+`profiles/opus-fable.settings.json` (model, effort, thinking, output
+style) into your project's or user's `.claude/settings.json`. Check
+posture anytime with `/fable-status`.
 
-## Strict mode & knobs
+SDK/headless, doctrine text only, no hooks:
+`--append-system-prompt "$(awk 'f;/^---$/{c++;if(c==2)f=1}' output-styles/fable.md)"` —
+strips the YAML frontmatter (a plain `cat` of the file would leak it into
+the prompt). No plugin at all? Copy `docs/claude-md-snippet.md` into
+CLAUDE.md instead.
 
-- `FABLE_STOP_JUDGE=1` — LLM second-tier stop gate (Haiku; ~2–5s per stop).
-- `FABLE_TELEMETRY=0` — disable telemetry. `FABLE_TELEMETRY_FILE` — move it.
+## Does it work?
 
-## The convergence loop
+Iteration 1's baseline eval (12 probes, pairwise-judged against golden
+Fable 5 transcripts) shows real but mixed convergence: fable-mode wins
+outcome-first framing and turn completion outright (2.00 vs baseline's
+1.83) but currently trails baseline on burying findings and autonomy
+calibration (1.42 and 1.50 vs 1.83 and 1.67). It's a net improvement on
+some doctrine dimensions and a regression on others — which is what the
+eval loop is for.
 
-See `evals/LOOP.md`; run it via `/fable-eval`. Every accepted tuning
-iteration bumps the version with a CHANGELOG entry.
+## Full documentation
 
-## Composition with superpowers
-
-fable-mode defers to superpowers for brainstorming, TDD, debugging, and
-verification; it owns voice, orchestration shape, and turn-end discipline.
-Precedence: user instructions > CLAUDE.md > skills > this doctrine.
-
-## Platform
-
-macOS/Linux (bash + python3 stdlib). Windows untested (WSL should work).
-
-## What this can't do
-
-Opus's reasoning depth is weights, not config. This playbook transplants
-Fable's *behavior*, catches Opus's drift mechanically, and measures the
-gap — it does not close the capability gap.
+**[`docs/guide.md`](docs/guide.md)** covers all of this in full:
+activation details for each install method, the 7 hooks and the exact
+messages they produce, the skills and the critic agent, `/fable-status`
+and `/fable-eval` (including real eval costs), telemetry, strict mode,
+the eval loop end to end, a copy-paste smoke-test recipe for real work,
+every `FABLE_*` env var, and troubleshooting.

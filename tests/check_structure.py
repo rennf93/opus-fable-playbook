@@ -39,6 +39,7 @@ REQUIRED = [
     "evals/report.sh",
     "evals/lib/isolation.py",
     ".claude-plugin/marketplace.json",
+    "docs/guide.md",
 ]
 
 

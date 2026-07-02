@@ -36,8 +36,10 @@ PY
 ```
 
 3. Interpret: `stop-gate` counts mean turn-discipline drift (doctrine §2);
-   `bash-discipline` means tool-discipline drift (§6); `honesty-nudge`
-   firings are informational (failures occurred and were flagged).
+   `stop-gate-subagent` counts mean subagent turn-discipline drift
+   (subagents returning intentions instead of findings); `bash-discipline`
+   means tool-discipline drift (§6); `honesty-nudge` firings are
+   informational (failures occurred and were flagged).
 4. Report in prose, outcome first: overall posture, then the table framed
    as the week's enforcement tax — each count is drift the plugin caught
    that would otherwise have shipped — then which doctrine section (if

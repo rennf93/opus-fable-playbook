@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+User guide (docs/guide.md), slimmed README, macOS CI job, internal dev docs removed from the repo, /fable-status subagent interpretation.
+
 ## 0.1.1 — 2026-07-02
 
 Post-release corrections from the final whole-branch review: golden 11

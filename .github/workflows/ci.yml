@@ -6,7 +6,10 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - name: Structure check
@@ -14,6 +17,7 @@ jobs:
       - name: Hook tests
         run: tests/run.sh
       - name: Shellcheck
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
           shellcheck -x -e SC1091 hooks/*.sh hooks/lib/*.sh tests/run.sh evals/*.sh
