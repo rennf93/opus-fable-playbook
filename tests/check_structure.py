@@ -17,6 +17,8 @@ REQUIRED = [
     "hooks/lib/doctrine-card.md",
     "docs/claude-md-snippet.md",
     "profiles/opus-fable.settings.json",
+    "hooks/lib/last_message.py",
+    "tests/run.sh",
 ]
 
 

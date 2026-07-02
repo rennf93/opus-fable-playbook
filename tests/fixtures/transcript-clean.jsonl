@@ -1,0 +1,1 @@
+{"type":"assistant","isSidechain":false,"message":{"content":[{"type":"text","text":"Done: the race condition is fixed in worker.py:88 and the full suite passes (42 passed in 3.1s).\n\nThe root cause was the unguarded cache write; the fix adds the lock that the read path already used."}]}}

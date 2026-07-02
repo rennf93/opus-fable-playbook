@@ -1,0 +1,1 @@
+{"type":"assistant","isSidechain":false,"message":{"content":[{"type":"text","text":"I found the bug: the retry counter resets on every call.\n\nLet me know if you'd like me to apply the fix."}]}}

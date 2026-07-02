@@ -1,0 +1,2 @@
+{"type":"user","message":{"content":[{"type":"text","text":"refactor the parsers"}]}}
+{"type":"assistant","isSidechain":false,"message":{"content":[{"type":"text","text":"The csv and json parsers are refactored and their tests pass.\n\nI'll now update the xml parser and push the changes."}]}}
