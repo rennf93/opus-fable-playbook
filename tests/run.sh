@@ -79,6 +79,15 @@ check "allows redirect"          "$(bd_stdin 'cat a.txt b.txt > merged.txt')" em
 check "allows unrelated command" "$(bd_stdin 'make test')"                 empty "$HOOKS/bash-discipline.sh"
 check "fails open on garbage"    "$TMP/garbage.json"                       empty "$HOOKS/bash-discipline.sh"
 
+echo "== honesty-nudge =="
+hn_stdin() { printf '{"session_id":"test","tool_name":"Bash","tool_response":{"stdout":%s,"stderr":""}}' "$1" > "$TMP/hn.json"; echo "$TMP/hn.json"; }
+check "fires on pytest FAILED"   "$(hn_stdin '"FAILED tests/test_x.py::test_a - AssertionError"')" context "$HOOKS/honesty-nudge.sh"
+check "fires on go FAIL"         "$(hn_stdin '"--- FAIL: TestParse (0.00s)"')"                     context "$HOOKS/honesty-nudge.sh"
+check "fires on cargo FAILED"    "$(hn_stdin '"test result: FAILED. 1 passed; 2 failed"')"          context "$HOOKS/honesty-nudge.sh"
+check "fires on traceback"       "$(hn_stdin '"Traceback (most recent call last):\n  boom"')"       context "$HOOKS/honesty-nudge.sh"
+check "silent on passing output" "$(hn_stdin '"42 passed in 3.1s"')"                                empty   "$HOOKS/honesty-nudge.sh"
+check "silent on garbage"        "$TMP/garbage.json"                                                empty   "$HOOKS/honesty-nudge.sh"
+
 echo ""
 echo "== results: $PASS passed, $FAIL failed =="
 [ $FAIL -eq 0 ]

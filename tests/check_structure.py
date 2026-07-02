@@ -22,6 +22,7 @@ REQUIRED = [
     "hooks/stop-gate.sh",
     "hooks/lib/telemetry.sh",
     "hooks/bash-discipline.sh",
+    "hooks/honesty-nudge.sh",
 ]
 
 
