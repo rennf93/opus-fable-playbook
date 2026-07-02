@@ -28,7 +28,10 @@ printf '%s' "$FINAL" | grep -qiE "(^|[^a-z])i('|’)?ll (now |then |next |also |
 [ -z "$MATCH" ] && printf '%s' "$FINAL" | grep -qiE "let me know (if|when|whether|what|which|and)" && MATCH="let-me-know"
 [ -z "$MATCH" ] && printf '%s' "$FINAL" | grep -qiE "would you like me to" && MATCH="would-you-like"
 [ -z "$MATCH" ] && printf '%s' "$FINAL" | grep -qiE "(^|[^a-z])shall i " && MATCH="shall-i"
-[ -z "$MATCH" ] && printf '%s' "$FINAL" | grep -qiE "(^|[^a-z])want me to " && MATCH="want-me-to"
+# Golden calibration 2026-07-02: bare "want me to " blocked real Fable endings
+# (assess-only tasks ending "want me to apply the fix?" — a genuine decision
+# question). Anchor to continuation verbs so only in-scope deferral blocks.
+[ -z "$MATCH" ] && printf '%s' "$FINAL" | grep -qiE "(^|[^a-z])want me to (continue|proceed|keep going|finish|do the rest)" && MATCH="want-me-to"
 
 MODE="${1:-main}"
 

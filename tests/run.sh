@@ -142,6 +142,22 @@ for f in "$HOOKS"/*.sh "$HOOKS"/lib/*.sh; do
   else FAIL=$((FAIL+1)); echo "FAIL: bash -n $(basename "$f")"; fi
 done
 
+echo "== golden calibration (stop-gate false positives) =="
+GOLD_DIR="$ROOT/evals/golden"
+if ls "$GOLD_DIR"/*.golden.json >/dev/null 2>&1; then
+  for g in "$GOLD_DIR"/*.golden.json; do
+    python3 -c '
+import json, sys
+r = json.load(open(sys.argv[1])).get("result", "")
+line = json.dumps({"type": "assistant", "isSidechain": False,
+                   "message": {"content": [{"type": "text", "text": r}]}})
+open(sys.argv[2], "w").write(line + "\n")' "$g" "$TMP/gt.jsonl"
+    check "no false positive: $(basename "$g")" "$(stop_stdin "$TMP/gt.jsonl")" empty "$HOOKS/stop-gate.sh"
+  done
+else
+  echo "SKIP: no goldens yet (generate in Task 15)"
+fi
+
 echo ""
 echo "== results: $PASS passed, $FAIL failed =="
 [ $FAIL -eq 0 ]
