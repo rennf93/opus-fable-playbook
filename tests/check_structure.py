@@ -32,6 +32,7 @@ REQUIRED = [
     "skills/fable-turn-check/SKILL.md",
     "agents/critic.md",
     "commands/fable-status.md",
+    ".github/workflows/ci.yml",
 ]
 
 
