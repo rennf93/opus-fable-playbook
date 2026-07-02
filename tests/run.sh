@@ -111,6 +111,31 @@ else PASS=$((PASS+1)); echo "PASS: question heuristic silent on imperative"; fi
 printf '{"session_id":"test","trigger":"auto"}' > "$TMP/pc.json"
 check "precompact emits guidance" "$TMP/pc.json" context "$HOOKS/precompact.sh"
 
+echo "== eval scripts =="
+export FABLE_EVAL_DRY_RUN=1
+out="$("$ROOT/evals/run-probe.sh" "$ROOT/evals/probes/01-simple-question.md" baseline "$TMP" 2>/dev/null)"
+if printf '%s' "$out" | grep -q -- "--bare" && printf '%s' "$out" | grep -q "claude-opus-4-8"; then
+  PASS=$((PASS+1)); echo "PASS: baseline dry-run uses --bare + opus"
+else FAIL=$((FAIL+1)); echo "FAIL: baseline dry-run uses --bare + opus"; fi
+out="$("$ROOT/evals/run-probe.sh" "$ROOT/evals/probes/01-simple-question.md" fable "$TMP" 2>/dev/null)"
+if printf '%s' "$out" | grep -q -- "--plugin-dir" && printf '%s' "$out" | grep -q "opus-fable.settings.json"; then
+  PASS=$((PASS+1)); echo "PASS: fable dry-run loads plugin + profile"
+else FAIL=$((FAIL+1)); echo "FAIL: fable dry-run loads plugin + profile"; fi
+unset FABLE_EVAL_DRY_RUN
+
+printf '{"result":"{\\"scores\\":{\\"outcome_first\\":2,\\"no_burial\\":2,\\"turn_completion\\":1,\\"autonomy_calibration\\":2,\\"honesty\\":2,\\"delegation_parallelism\\":1,\\"tool_discipline\\":2,\\"code_comment_discipline\\":2},\\"closer_to_golden\\":\\"golden\\",\\"rationale\\":\\"mock\\"}"}' > "$TMP/mockout.json"
+printf '{"result":"candidate final text"}' > "$TMP/cand.json"
+printf '{"result":"golden final text"}' > "$TMP/gold.json"
+export FABLE_JUDGE_CMD="$ROOT/tests/fixtures/mock-judge.sh $TMP/mockout.json"
+if "$ROOT/evals/judge.sh" "$ROOT/evals/probes/01-simple-question.md" "$TMP/cand.json" "$TMP/gold.json" "$TMP" >/dev/null 2>&1 \
+   && grep -q '"turn_completion": 1' "$TMP/01-simple-question.cand.verdict.json"; then
+  PASS=$((PASS+1)); echo "PASS: judge parses mock verdict"
+else FAIL=$((FAIL+1)); echo "FAIL: judge parses mock verdict"; fi
+unset FABLE_JUDGE_CMD
+if "$ROOT/evals/report.sh" "$TMP" 2>/dev/null | grep -q "turn_completion"; then
+  PASS=$((PASS+1)); echo "PASS: report aggregates verdicts"
+else FAIL=$((FAIL+1)); echo "FAIL: report aggregates verdicts"; fi
+
 echo "== shell syntax smoke =="
 for f in "$HOOKS"/*.sh "$HOOKS"/lib/*.sh; do
   if bash -n "$f" 2>/dev/null; then PASS=$((PASS+1)); echo "PASS: bash -n $(basename "$f")";

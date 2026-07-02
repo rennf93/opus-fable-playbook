@@ -34,6 +34,9 @@ REQUIRED = [
     "commands/fable-status.md",
     ".github/workflows/ci.yml",
     "evals/rubric.md",
+    "evals/run-probe.sh",
+    "evals/judge.sh",
+    "evals/report.sh",
 ]
 
 

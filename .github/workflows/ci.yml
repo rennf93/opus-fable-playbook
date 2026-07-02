@@ -16,4 +16,4 @@ jobs:
       - name: Shellcheck
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
-          shellcheck -x -e SC1091 hooks/*.sh hooks/lib/*.sh tests/run.sh
+          shellcheck -x -e SC1091 hooks/*.sh hooks/lib/*.sh tests/run.sh evals/*.sh
