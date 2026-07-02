@@ -33,6 +33,7 @@ REQUIRED = [
     "agents/critic.md",
     "commands/fable-status.md",
     ".github/workflows/ci.yml",
+    "evals/rubric.md",
 ]
 
 
