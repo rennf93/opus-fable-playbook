@@ -1,0 +1,1 @@
+{"type":"assistant","isSidechain":false,"message":{"content":[{"type":"text","text":"The config migration plan is drafted and reviewed.\n\nNext steps: migrate the config and re-run CI."}]}}

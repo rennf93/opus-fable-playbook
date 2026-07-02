@@ -28,12 +28,15 @@ if [ -n "$FIXTURE" ]; then cp -R "$ROOT/evals/fixtures/$FIXTURE/." "$WORK/"; fi
 case "$MODE" in
   baseline) MODEL="${FABLE_CANDIDATE_MODEL:-claude-opus-4-8}"
             python3 "$ROOT/evals/lib/isolation.py" > "$WORK/.iso.settings.json"
+            grep -q '"enabledPlugins"' "$WORK/.iso.settings.json" || { echo "fable-eval: isolation map generation failed; refusing to run unisolated" >&2; exit 1; }
             EXTRA="--settings $WORK/.iso.settings.json" ;;
   fable)    MODEL="${FABLE_CANDIDATE_MODEL:-claude-opus-4-8}"
             python3 "$ROOT/evals/lib/isolation.py" --merge "$ROOT/profiles/opus-fable.settings.json" > "$WORK/.iso.settings.json"
+            grep -q '"enabledPlugins"' "$WORK/.iso.settings.json" || { echo "fable-eval: isolation map generation failed; refusing to run unisolated" >&2; exit 1; }
             EXTRA="--plugin-dir $ROOT --settings $WORK/.iso.settings.json" ;;
   golden)   MODEL="${FABLE_GOLDEN_MODEL:-claude-fable-5}"
             python3 "$ROOT/evals/lib/isolation.py" > "$WORK/.iso.settings.json"
+            grep -q '"enabledPlugins"' "$WORK/.iso.settings.json" || { echo "fable-eval: isolation map generation failed; refusing to run unisolated" >&2; exit 1; }
             EXTRA="--settings $WORK/.iso.settings.json" ;;
   *) echo "unknown mode: $MODE" >&2; exit 1 ;;
 esac

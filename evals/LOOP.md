@@ -16,3 +16,5 @@
 6. **Version**: every accepted iteration bumps the plugin version
    (plugin.json) with a CHANGELOG.md entry describing what was strengthened
    and the score delta.
+
+Golden regeneration must use `FABLE_GOLDEN_MODEL="claude-fable-5[1m]"` and afterwards assert every golden's dominant `modelUsage` cost bucket is `claude-fable-5` (probe 11's prompt is known to reroute to Opus on the standard pool). The `fable-turn-check` skill deliberately lists bare "Want me to…?" as a smell even though the mechanical stop-gate only blocks continuation-verb forms — the skill being stricter than the hook is intentional.

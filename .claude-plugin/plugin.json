@@ -1,6 +1,6 @@
 {
   "name": "fable-mode",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Make Opus 4.8 behave like Fable 5: doctrine output style, drift-catching hooks, orchestration skills, and an eval loop against golden Fable transcripts.",
   "author": { "name": "rennf93" },
   "homepage": "https://github.com/rennf93/opus-fable-playbook",

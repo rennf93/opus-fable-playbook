@@ -38,6 +38,7 @@ REQUIRED = [
     "evals/judge.sh",
     "evals/report.sh",
     "evals/lib/isolation.py",
+    ".claude-plugin/marketplace.json",
 ]
 
 
@@ -167,6 +168,13 @@ def check_probes():
         fm = frontmatter(os.path.join("evals/probes", f))
         if fm is None or not fm.get("id") or not fm.get("max_turns"):
             err(f"evals/probes/{f}: needs id + max_turns frontmatter")
+            continue
+        stem = os.path.splitext(f)[0]
+        if fm.get("id") != stem:
+            err(f"evals/probes/{f}: id {fm['id']!r} does not match filename stem {stem!r}")
+        fixture = fm.get("fixture")
+        if fixture and not os.path.isdir(p(os.path.join("evals/fixtures", fixture))):
+            err(f"evals/probes/{f}: fixture {fixture!r} not found under evals/fixtures/")
 
 
 def main():

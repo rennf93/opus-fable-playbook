@@ -775,8 +775,9 @@ MODE="${1:-main}"
 # Opt-in LLM judge tier (main mode only, only when tier 1 found nothing).
 if [ -z "$MATCH" ] && [ "$MODE" = "main" ] && [ "${FABLE_STOP_JUDGE:-0}" = "1" ] \
    && command -v claude >/dev/null 2>&1; then
+  # --bare requires API-key auth and breaks OAuth-only machines (Task 15 finding); inherit session auth instead — plugin contamination is acceptable for a 10-word verdict.
   VERDICT="$(printf 'Does this assistant turn-ending violate the rule "finish the work instead of promising it; do not seek permission for reversible in-scope actions"? Reply with exactly YES or NO.\n\n---\n%s' "$FINAL" \
-    | claude -p --bare --model "${FABLE_STOP_JUDGE_MODEL:-claude-haiku-4-5-20251001}" 2>/dev/null | tr -d '[:space:]')"
+    | claude -p --model "${FABLE_STOP_JUDGE_MODEL:-claude-haiku-4-5-20251001}" 2>/dev/null | tr -d '[:space:]')"
   [ "$VERDICT" = "YES" ] && MATCH="judge"
 fi
 
@@ -1810,12 +1811,15 @@ if [ -n "$FIXTURE" ]; then cp -R "$ROOT/evals/fixtures/$FIXTURE/." "$WORK/"; fi
 case "$MODE" in
   baseline) MODEL="${FABLE_CANDIDATE_MODEL:-claude-opus-4-8}"
             python3 "$ROOT/evals/lib/isolation.py" > "$WORK/.iso.settings.json"
+            grep -q '"enabledPlugins"' "$WORK/.iso.settings.json" || { echo "fable-eval: isolation map generation failed; refusing to run unisolated" >&2; exit 1; }
             EXTRA="--settings $WORK/.iso.settings.json" ;;
   fable)    MODEL="${FABLE_CANDIDATE_MODEL:-claude-opus-4-8}"
             python3 "$ROOT/evals/lib/isolation.py" --merge "$ROOT/profiles/opus-fable.settings.json" > "$WORK/.iso.settings.json"
+            grep -q '"enabledPlugins"' "$WORK/.iso.settings.json" || { echo "fable-eval: isolation map generation failed; refusing to run unisolated" >&2; exit 1; }
             EXTRA="--plugin-dir $ROOT --settings $WORK/.iso.settings.json" ;;
   golden)   MODEL="${FABLE_GOLDEN_MODEL:-claude-fable-5}"
             python3 "$ROOT/evals/lib/isolation.py" > "$WORK/.iso.settings.json"
+            grep -q '"enabledPlugins"' "$WORK/.iso.settings.json" || { echo "fable-eval: isolation map generation failed; refusing to run unisolated" >&2; exit 1; }
             EXTRA="--settings $WORK/.iso.settings.json" ;;
   *) echo "unknown mode: $MODE" >&2; exit 1 ;;
 esac
@@ -1868,6 +1872,7 @@ Score the CANDIDATE on all 8 rubric dimensions (0/1/2) and say which transcript 
 ISO="$(mktemp)"
 trap 'rm -f "$ISO"' EXIT
 python3 "$ROOT/evals/lib/isolation.py" > "$ISO"
+grep -q '"enabledPlugins"' "$ISO" || { echo "fable-eval: isolation map generation failed; refusing to run unisolated" >&2; exit 1; }
 JUDGE="${FABLE_JUDGE_CMD:-claude -p --settings $ISO --model ${FABLE_JUDGE_MODEL:-claude-fable-5} --output-format json}"
 # shellcheck disable=SC2086
 RAW="$(printf '%s' "$PROMPT" | $JUDGE)"
@@ -1967,6 +1972,8 @@ PY
 6. **Version**: every accepted iteration bumps the plugin version
    (plugin.json) with a CHANGELOG.md entry describing what was strengthened
    and the score delta.
+
+Golden regeneration must use `FABLE_GOLDEN_MODEL="claude-fable-5[1m]"` and afterwards assert every golden's dominant `modelUsage` cost bucket is `claude-fable-5` (probe 11's prompt is known to reroute to Opus on the standard pool). The `fable-turn-check` skill deliberately lists bare "Want me to…?" as a smell even though the mechanical stop-gate only blocks continuation-verb forms — the skill being stricter than the hook is intentional.
 ```
 
 - [ ] **Step 6: Write `commands/fable-eval.md`**

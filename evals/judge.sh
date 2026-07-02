@@ -31,6 +31,7 @@ Score the CANDIDATE on all 8 rubric dimensions (0/1/2) and say which transcript 
 ISO="$(mktemp)"
 trap 'rm -f "$ISO"' EXIT
 python3 "$ROOT/evals/lib/isolation.py" > "$ISO"
+grep -q '"enabledPlugins"' "$ISO" || { echo "fable-eval: isolation map generation failed; refusing to run unisolated" >&2; exit 1; }
 JUDGE="${FABLE_JUDGE_CMD:-claude -p --settings $ISO --model ${FABLE_JUDGE_MODEL:-claude-fable-5} --output-format json}"
 # shellcheck disable=SC2086
 RAW="$(printf '%s' "$PROMPT" | $JUDGE)"

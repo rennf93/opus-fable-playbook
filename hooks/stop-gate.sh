@@ -38,8 +38,9 @@ MODE="${1:-main}"
 # Opt-in LLM judge tier (main mode only, only when tier 1 found nothing).
 if [ -z "$MATCH" ] && [ "$MODE" = "main" ] && [ "${FABLE_STOP_JUDGE:-0}" = "1" ] \
    && command -v claude >/dev/null 2>&1; then
+  # --bare requires API-key auth and breaks OAuth-only machines (Task 15 finding); inherit session auth instead — plugin contamination is acceptable for a 10-word verdict.
   VERDICT="$(printf 'Does this assistant turn-ending violate the rule "finish the work instead of promising it; do not seek permission for reversible in-scope actions"? Reply with exactly YES or NO.\n\n---\n%s' "$FINAL" \
-    | claude -p --bare --model "${FABLE_STOP_JUDGE_MODEL:-claude-haiku-4-5-20251001}" 2>/dev/null | tr -d '[:space:]')"
+    | claude -p --model "${FABLE_STOP_JUDGE_MODEL:-claude-haiku-4-5-20251001}" 2>/dev/null | tr -d '[:space:]')"
   [ "$VERDICT" = "YES" ] && MATCH="judge"
 fi
 
