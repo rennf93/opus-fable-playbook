@@ -111,6 +111,12 @@ else PASS=$((PASS+1)); echo "PASS: question heuristic silent on imperative"; fi
 printf '{"session_id":"test","trigger":"auto"}' > "$TMP/pc.json"
 check "precompact emits guidance" "$TMP/pc.json" context "$HOOKS/precompact.sh"
 
+echo "== shell syntax smoke =="
+for f in "$HOOKS"/*.sh "$HOOKS"/lib/*.sh; do
+  if bash -n "$f" 2>/dev/null; then PASS=$((PASS+1)); echo "PASS: bash -n $(basename "$f")";
+  else FAIL=$((FAIL+1)); echo "FAIL: bash -n $(basename "$f")"; fi
+done
+
 echo ""
 echo "== results: $PASS passed, $FAIL failed =="
 [ $FAIL -eq 0 ]

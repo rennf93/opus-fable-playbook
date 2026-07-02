@@ -26,6 +26,7 @@ REQUIRED = [
     "hooks/session-start.sh",
     "hooks/prompt-nudge.sh",
     "hooks/precompact.sh",
+    "hooks/hooks.json",
 ]
 
 
