@@ -27,6 +27,9 @@ REQUIRED = [
     "hooks/prompt-nudge.sh",
     "hooks/precompact.sh",
     "hooks/hooks.json",
+    "skills/fable-voice/SKILL.md",
+    "skills/fable-fanout/SKILL.md",
+    "skills/fable-turn-check/SKILL.md",
 ]
 
 
