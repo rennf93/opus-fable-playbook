@@ -188,17 +188,26 @@ Turn Discipline, Autonomy, Honesty, Code, Delegation — plus a pointer to
 the three skills), then appends the output-style warning from section 3
 if applicable.
 
-**prompt-nudge.sh** — on every non-slash-command prompt, prints:
+**prompt-nudge.sh** — on every non-slash-command prompt, first checks
+whether the prompt is question-shaped: it ends in `?`, opens with
+why/what/how/is/does/should/can/are/do/where/when/who/which, or contains
+an imperative-investigate-then-report phrase like "...where this project
+stands" (catches "run the tests and tell me where this project stands" —
+an imperative sentence whose deliverable is still an assessment). If so,
+it prints ONLY:
+
+> This prompt is question-shaped: deliver your assessment; do not change
+> code unless asked.
+
+Otherwise it prints the base reminder:
 
 > Fable reminders: lead the final message with the outcome; finish work
 > instead of narrating it; parallelize independent tool calls; delegate
 > broad searches.
 
-and, if the prompt looks like a question (ends in `?`, or opens with
-why/what/how/is/does/should/can/are/do/where/when/who/which), appends:
-
-> This prompt is question-shaped: deliver your assessment; do not change
-> code unless asked.
+The two are mutually exclusive — a question-shaped prompt no longer also
+receives the "finish work instead of narrating it" pressure that used to
+be appended alongside it.
 
 **precompact.sh** — on every compaction, manual or automatic, prints:
 
@@ -443,6 +452,12 @@ drive the next tuning pass on (LOOP.md's map above points `no_burial` at
 doctrine §1 + fable-voice and `autonomy_calibration` at §3 + the
 prompt-nudge heuristic).
 
+That next pass happened as iteration 2 (v0.1.2, report committed at
+`docs/2026-07-03-iteration-2-report.md`): the two mapped tweaks moved
+`no_burial` 1.42 → 1.75 and `autonomy_calibration` 1.50 → 1.75 (the
+latter now ahead of baseline), with `outcome_first` holding 2.00 and
+`turn_completion` landing at baseline parity (1.83).
+
 ## 10. Smoke-testing on real work
 
 The probes are synthetic. To see the hooks fire on your own work, run a
@@ -459,6 +474,11 @@ git config user.name "Fable Smoke Test"
 cat > calc.py <<'EOF'
 def add(a, b):
     return a - b
+
+
+if __name__ == "__main__":
+    assert add(2, 2) == 4
+    print("ok")
 EOF
 
 cat > test_calc.py <<'EOF'
@@ -474,14 +494,21 @@ git add -A && git commit -q -m "seed: failing test"
 export FABLE_TELEMETRY_FILE=/tmp/fable-smoke/telemetry.jsonl
 PLUGIN=/path/to/opus-fable-playbook
 
-# 2-3 small real sessions
+# 2-3 small real sessions. --permission-mode acceptEdits and --allowedTools
+# are required here, the same way evals/run-probe.sh always sets them for
+# probe runs: plain -p with neither flag only auto-approves read-only tool
+# calls, and the session aborts the moment it attempts its first Edit or
+# non-trivial Bash command, which is most of the point of these three tasks.
 claude --plugin-dir "$PLUGIN" --settings "$PLUGIN/profiles/opus-fable.settings.json" \
+  --permission-mode acceptEdits --allowedTools "Bash,Read,Edit,Write,Grep,Glob,Agent" \
   -p "run the tests and fix the failing one"
 
 claude --plugin-dir "$PLUGIN" --settings "$PLUGIN/profiles/opus-fable.settings.json" \
+  --permission-mode acceptEdits --allowedTools "Bash,Read,Edit,Write,Grep,Glob,Agent" \
   -p "audit calc.py for correctness issues"
 
 claude --plugin-dir "$PLUGIN" --settings "$PLUGIN/profiles/opus-fable.settings.json" \
+  --permission-mode acceptEdits --allowedTools "Bash,Read,Edit,Write,Grep,Glob,Agent" \
   -p "calc.py and test_calc.py both hardcode the same fixture values twice — refactor the duplication"
 
 # Read back the enforcement tax
@@ -489,9 +516,11 @@ cat "$FABLE_TELEMETRY_FILE"
 ```
 
 Each line is one JSONL event (section 7) — count occurrences of `"hook":
-"stop-gate"` (turn-discipline catches), `"bash-discipline"` (shell-read
-catches), and `"honesty-nudge"` (failure-reporting nudges) to see what
-the plugin actually caught on real work, not synthetic probes.
+"stop-gate"` (turn-discipline catches), `"stop-gate-subagent"` (the same
+catches on subagent final messages, possible whenever a session spawns
+agents), `"bash-discipline"` (shell-read catches), and `"honesty-nudge"`
+(failure-reporting nudges) to see what the plugin actually caught on real
+work, not synthetic probes.
 
 ## 11. Environment variables
 

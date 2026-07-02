@@ -113,6 +113,21 @@ if printf '%s' "$out" | grep -q "question-shaped"; then
   FAIL=$((FAIL+1)); echo "FAIL: question heuristic silent on imperative"
 else PASS=$((PASS+1)); echo "PASS: question heuristic silent on imperative"; fi
 
+out="$("$HOOKS/prompt-nudge.sh" < "$(pn_stdin '"why is the deploy failing?"')" 2>/dev/null)"
+if printf '%s' "$out" | grep -q "finish work instead of narrating it"; then
+  FAIL=$((FAIL+1)); echo "FAIL: question heuristic replaces base reminder"
+else PASS=$((PASS+1)); echo "PASS: question heuristic replaces base reminder"; fi
+
+out="$("$HOOKS/prompt-nudge.sh" < "$(pn_stdin '"Run the tests and tell me where this project stands."')" 2>/dev/null)"
+if printf '%s' "$out" | grep -q "question-shaped"; then
+  PASS=$((PASS+1)); echo "PASS: question heuristic fires on imperative status-inquiry"
+else FAIL=$((FAIL+1)); echo "FAIL: question heuristic fires on imperative status-inquiry"; fi
+
+out="$("$HOOKS/prompt-nudge.sh" < "$(pn_stdin '"This file could probably use a cleanup, maybe rename things if you think it helps, whatever you think is best."')" 2>/dev/null)"
+if printf '%s' "$out" | grep -q "question-shaped"; then
+  FAIL=$((FAIL+1)); echo "FAIL: question heuristic silent on delegated cleanup"
+else PASS=$((PASS+1)); echo "PASS: question heuristic silent on delegated cleanup"; fi
+
 printf '{"session_id":"test","trigger":"auto"}' > "$TMP/pc.json"
 check "precompact emits guidance" "$TMP/pc.json" context "$HOOKS/precompact.sh"
 

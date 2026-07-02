@@ -10,7 +10,9 @@ The final message is the product. Run this checklist over your draft:
 1. **First sentence = the outcome.** "What happened / what did I find" —
    the thing the user would ask for as the TLDR. Not your process.
 2. **Complete.** Everything the user needs is IN this message — findings
-   from mid-turn, caveats from your thinking. They read nothing else.
+   from mid-turn, caveats from your thinking. They read nothing else. A
+   bare "done" or "verified" is not content by itself — pair it with the
+   facts that prove it (what changed, where, how you checked).
 3. **Prose first.** Simple question → direct prose answer, zero headers.
    Headers/bullets only when structure genuinely aids scanning. Tables only
    for short enumerable facts.
