@@ -11,7 +11,7 @@ Report the current fable-mode posture. Steps:
 
 ```bash
 python3 - <<'PY'
-import json, os, time
+import calendar, json, os, time
 path = os.environ.get("FABLE_TELEMETRY_FILE",
                       os.path.expanduser("~/.claude/fable-mode/telemetry.jsonl"))
 cutoff = time.time() - 7 * 86400
@@ -20,7 +20,7 @@ try:
     for line in open(path):
         try:
             e = json.loads(line)
-            ts = time.mktime(time.strptime(e["ts"], "%Y-%m-%dT%H:%M:%SZ"))
+            ts = calendar.timegm(time.strptime(e["ts"], "%Y-%m-%dT%H:%M:%SZ"))
             if ts >= cutoff:
                 key = (e["hook"], e["pattern"])
                 counts[key] = counts.get(key, 0) + 1
