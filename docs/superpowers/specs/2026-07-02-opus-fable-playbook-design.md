@@ -188,3 +188,7 @@ Distribution: works immediately via `claude --plugin-dir`; installable from GitH
 - Judge tier default-on with caching.
 - Statusline "FABLE-MODE" indicator.
 - Shadow-judging real sessions (LLM-scoring live transcripts against the rubric, not just probes).
+- Per-pattern circuit breaker: if the same hook pattern fires N times in a window, escalate the message ("stop and ask the user") instead of repeating it (idea validated by roboco's per-verb breaker, `agent_loop.py`).
+- Deterministic evidence table for "done" claims: verb→required-evidence mapping (tests run since last edit, diff reviewed) checked by the stop-gate, adapted from roboco's `tracing.py` pattern.
+
+**Design conventions adopted from roboco review (2026-07-02):** every hook block/deny message states the violation AND the literal next action (roboco's `remediate` contract); `/fable-status` frames telemetry as an enforcement-tax report (how often gates fired ≈ what drift they caught).

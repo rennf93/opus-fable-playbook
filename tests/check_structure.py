@@ -14,6 +14,9 @@ REQUIRED = [
     "LICENSE",
     "README.md",
     "output-styles/fable.md",
+    "hooks/lib/doctrine-card.md",
+    "docs/claude-md-snippet.md",
+    "profiles/opus-fable.settings.json",
 ]
 
 
