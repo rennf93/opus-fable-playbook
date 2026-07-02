@@ -19,6 +19,8 @@ REQUIRED = [
     "profiles/opus-fable.settings.json",
     "hooks/lib/last_message.py",
     "tests/run.sh",
+    "hooks/stop-gate.sh",
+    "hooks/lib/telemetry.sh",
 ]
 
 

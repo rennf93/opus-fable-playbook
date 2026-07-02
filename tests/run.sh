@@ -54,6 +54,20 @@ if [ $code -eq 0 ] && [ -z "$out" ]; then
   PASS=$((PASS+1)); echo "PASS: fails open on missing transcript"
 else FAIL=$((FAIL+1)); echo "FAIL: fails open on missing transcript"; fi
 
+echo "== stop-gate =="
+check "blocks promise ending"      "$(stop_stdin "$FIX/transcript-promise.jsonl")"   block "$HOOKS/stop-gate.sh"
+check "blocks let-me-know ending"  "$(stop_stdin "$FIX/transcript-letmeknow.jsonl")" block "$HOOKS/stop-gate.sh"
+check "allows decision question"   "$(stop_stdin "$FIX/transcript-question.jsonl")"  empty "$HOOKS/stop-gate.sh"
+check "allows clean outcome"       "$(stop_stdin "$FIX/transcript-clean.jsonl")"     empty "$HOOKS/stop-gate.sh"
+check "allows when stop_hook_active" "$(stop_stdin "$FIX/transcript-promise.jsonl" true)" empty "$HOOKS/stop-gate.sh"
+check "subagent mode blocks promise" "$(stop_stdin "$FIX/transcript-promise.jsonl")" block "$HOOKS/stop-gate.sh" subagent
+printf 'not json' > "$TMP/garbage.json"
+check "fails open on garbage stdin" "$TMP/garbage.json" empty "$HOOKS/stop-gate.sh"
+
+if grep -q '"hook":"stop-gate"' "$FABLE_TELEMETRY_FILE" 2>/dev/null; then
+  PASS=$((PASS+1)); echo "PASS: telemetry line written"
+else FAIL=$((FAIL+1)); echo "FAIL: telemetry line written"; fi
+
 echo ""
 echo "== results: $PASS passed, $FAIL failed =="
 [ $FAIL -eq 0 ]
