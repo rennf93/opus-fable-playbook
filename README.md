@@ -1,5 +1,7 @@
 # fable-mode
 
+[![ci](https://github.com/rennf93/opus-fable-playbook/actions/workflows/ci.yml/badge.svg)](https://github.com/rennf93/opus-fable-playbook/actions/workflows/ci.yml)
+
 Make Claude Opus 4.8 in Claude Code behave as much like Claude Fable 5 as
 possible. The doctrine was transcribed by Fable 5 itself; hooks enforce
 it at the harness level; an eval loop measures convergence against
