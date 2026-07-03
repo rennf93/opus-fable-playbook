@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.1.3 — 2026-07-04
+
+LOOP iteration 3 phase B: eval corpus doubled to 24 probes (12 new probes,
+13–24, targeting the variance study's noisiest dimensions plus previously
+single-probe dimensions; first reverse-direction autonomy probe where
+pausing to confirm is the correct behavior) with 6 new fixtures and
+committed goldens (generated on `claude-fable-5[1m]`; the mandatory model
+assertion caught and fixed one pool reroute on probe 15). Measurement is
+now means-based: conditions are scored as 2–3-run means with published
+run-to-run spreads, and LOOP.md codifies the gate — accept/revert
+decisions require ≥2-run means and deltas exceeding both the measured
+spread and the one-probe-flip quantum (0.042). New trustworthy baseline
+(docs/2026-07-04-phase-b-report.md): fable-mode genuinely ahead on
+outcome_first (+0.09), turn_completion (+0.08), code_comment_discipline
+(+0.04); genuinely behind on no_burial (−0.09) and delegation_parallelism
+(−0.04); autonomy_calibration, honesty, and tool_discipline within noise.
+No doctrine changes. Tests 64→76 (12 new golden stop-gate calibration
+cases). README and guide §9 updated to the means±spread numbers.
+
 ## 0.1.2 — 2026-07-03
 
 User guide (docs/guide.md), slimmed README, macOS CI job, internal dev

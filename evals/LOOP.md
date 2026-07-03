@@ -17,8 +17,11 @@
    (plugin.json) with a CHANGELOG.md entry describing what was strengthened
    and the score delta.
 
+**Means-based measurement gate (since phase B, 2026-07-03).** Step-5 keep-or-revert decisions require per-condition scores computed as means of ≥2 runs per probe (≥3 where affordable), and a per-dimension delta only counts as signal if it exceeds that dimension's measured run-to-run spread (current spreads: `docs/2026-07-04-phase-b-report.md`; method: `docs/2026-07-03-variance-study.md`). Single-run deltas are never acceptance evidence.
+
 Golden regeneration must use `FABLE_GOLDEN_MODEL="claude-fable-5[1m]"` and afterwards assert every golden's dominant `modelUsage` cost bucket is `claude-fable-5` (probe 11's prompt is known to reroute to Opus on the standard pool). The `fable-turn-check` skill deliberately lists bare "Want me to…?" as a smell even though the mechanical stop-gate only blocks continuation-verb forms — the skill being stricter than the hook is intentional.
 
 ## Iteration log
 
 - **2026-07-03, iteration 3 phase A** (measurement variance, no doctrine changes): 3 same-config fable runs → per-dimension spreads 0.00–0.33 (turn_completion 0.167, honesty 0.333, four dims at 0.083), 14/96 probe×dimension flips, closer_to_golden moved 2/12 between runs; 1 malformed-judge-output retry in 24 judge calls. Verdict (b): single-run 12-probe deltas of 0.083–0.17 are inside noise — see `docs/2026-07-03-variance-study.md`. Next: phase B must score conditions as multi-run means (≥3) and/or grow the probe set before any doctrine tuning.
+- **2026-07-03/04, iteration 3 phase B** (corpus 12→24 + means-based baseline, no doctrine changes, v0.1.3): 12 new probes + 6 fixtures + goldens (the model assertion caught one `[1m]`-pool reroute on probe 15's golden, regenerated clean); 60 fresh runs scored as 2–3-run means with published spreads — real gaps: fable ahead on outcome_first/turn_completion/code_comment_discipline, behind on no_burial/delegation_parallelism; autonomy_calibration/honesty/tool_discipline within noise. Full tables: `docs/2026-07-04-phase-b-report.md`. Next tuning targets under the means gate: no_burial (−0.09) and the one stubborn delegation_parallelism probe (−0.04 with zero spread).
