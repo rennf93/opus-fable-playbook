@@ -352,7 +352,7 @@ acceptable cost for a single-word verdict.
 ## 9. The eval loop
 
 The eval loop measures how close Opus-under-fable-mode gets to real
-Fable 5 behavior, using 12 hand-written probes in `evals/probes/` — each
+Fable 5 behavior, using 24 hand-written probes in `evals/probes/` — each
 a short Markdown file with `id`/`max_turns`/optional `fixture`
 frontmatter, a task prompt, and an "## Expected Fable behavior"
 checklist. Each probe runs three ways: `baseline` (plain Opus 4.8),
@@ -424,39 +424,39 @@ of `--bare`, which was tried and dropped: `--bare` also drops
 OAuth/subscription auth, breaking eval runs on machines without a
 separate API key.
 
-**Iteration-1 baseline** (from `docs/2026-07-02-baseline-report.md`, 12
-probes, pairwise-judged against golden Fable 5 transcripts):
+**Current numbers** (from `docs/2026-07-04-phase-b-report.md`: 24 probes,
+pairwise-judged against golden Fable 5 transcripts, every condition scored
+as a multi-run mean — fable 2–3 runs, baseline 2 runs — with `± spread`
+being the max−min of run-level averages, per the measurement-variance
+study in `docs/2026-07-03-variance-study.md`):
 
 | dimension | baseline | fable |
 |---|---|---|
-| outcome_first | 1.83 | **2.00** |
-| no_burial | **1.83** | 1.42 |
-| turn_completion | 1.83 | **2.00** |
-| autonomy_calibration | **1.67** | 1.50 |
-| honesty | **1.92** | 1.83 |
-| delegation_parallelism | **2.00** | 1.92 |
-| tool_discipline | **1.83** | 1.75 |
-| code_comment_discipline | 1.92 | 1.92 |
+| outcome_first | 1.88 ± 0.000 | **1.97 ± 0.083** |
+| no_burial | **1.85 ± 0.042** | 1.76 ± 0.042 |
+| turn_completion | 1.81 ± 0.042 | **1.90 ± 0.000** |
+| autonomy_calibration | 1.81 ± 0.042 | 1.81 ± 0.042 |
+| honesty | 1.83 ± 0.083 | 1.83 ± 0.083 |
+| delegation_parallelism | **2.00 ± 0.000** | 1.96 ± 0.000 |
+| tool_discipline | 1.92 ± 0.000 | 1.91 ± 0.000 |
+| code_comment_discipline | 1.96 ± 0.000 | **2.00 ± 0.000** |
 
-fable-mode wins `outcome_first` and `turn_completion` outright (2.00 vs
-1.83 — the stop-gate and doctrine text are doing their job) but trails on
-`no_burial` (1.42 vs 1.83) and `autonomy_calibration` (1.50 vs 1.67), and
-is slightly behind on `honesty`, `delegation_parallelism`, and
-`tool_discipline`. The closer-to-golden tally tells the same mixed story:
-baseline was judged an outright tie with its own golden on 3 of 12 probes
-(25%), fable on 2 of 12 (17%) — neither mode ever beat its golden
-outright. Iteration 1 is not a uniform win; it fixes turn-ending and
-outcome-first framing at a real cost in burying and autonomy calibration,
-which is exactly the kind of regression this loop exists to catch and
-drive the next tuning pass on (LOOP.md's map above points `no_burial` at
-doctrine §1 + fable-voice and `autonomy_calibration` at §3 + the
-prompt-nudge heuristic).
+Bold marks gaps that are real under the LOOP.md measurement gate (larger
+than both the measured spread and the one-probe-flip quantum of 0.042):
+fable-mode genuinely wins `outcome_first`, `turn_completion`, and
+`code_comment_discipline`; it genuinely trails on `no_burial` and
+`delegation_parallelism`; `autonomy_calibration`, `honesty`, and
+`tool_discipline` are statistically indistinguishable from baseline.
+Closer-to-golden, pooled over every probe-run: fable was judged an
+outright tie with its golden on 18 of 60 verdicts (30%), baseline on 9 of
+48 (19%) — neither arm ever beat its golden.
 
-That next pass happened as iteration 2 (v0.1.2, report committed at
-`docs/2026-07-03-iteration-2-report.md`): the two mapped tweaks moved
-`no_burial` 1.42 → 1.75 and `autonomy_calibration` 1.50 → 1.75 (the
-latter now ahead of baseline), with `outcome_first` holding 2.00 and
-`turn_completion` landing at baseline parity (1.83).
+History: iteration 1 (`docs/2026-07-02-baseline-report.md`, single-run,
+12 probes) found `no_burial` at 1.42 and `autonomy_calibration` at 1.50;
+iteration 2's tweaks (v0.1.2, `docs/2026-07-03-iteration-2-report.md`)
+moved both to 1.75. The variance study then showed single-run 12-probe
+deltas below ~0.17 are noise, which is why scores are now multi-run means
+over 24 probes with published error bars.
 
 ## 10. Smoke-testing on real work
 

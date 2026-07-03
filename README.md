@@ -38,13 +38,16 @@ CLAUDE.md instead.
 
 ## Does it work?
 
-Iteration 1's baseline eval (12 probes, pairwise-judged against golden
-Fable 5 transcripts) shows real but mixed convergence: fable-mode wins
-outcome-first framing and turn completion outright (2.00 vs baseline's
-1.83) but currently trails baseline on burying findings and autonomy
-calibration (1.42 and 1.50 vs 1.83 and 1.67). It's a net improvement on
-some doctrine dimensions and a regression on others — which is what the
-eval loop is for.
+Measured on 24 probes, pairwise-judged against golden Fable 5 transcripts,
+with every condition scored as a multi-run mean (2–3 runs per arm) and
+error bars from a dedicated [variance study](docs/2026-07-03-variance-study.md):
+fable-mode's real wins are outcome-first framing (1.97 vs 1.88), turn
+completion (1.90 vs 1.81), and comment discipline (2.00 vs 1.96); its real
+losses are burying findings (1.76 vs 1.85) and one stubborn parallelism
+probe (1.96 vs 2.00). The other three dimensions are statistically
+indistinguishable from baseline — gaps smaller than the measured
+run-to-run spread. Full tables with error bars:
+[docs/2026-07-04-phase-b-report.md](docs/2026-07-04-phase-b-report.md).
 
 ## Full documentation
 

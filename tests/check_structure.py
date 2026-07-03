@@ -163,8 +163,8 @@ def check_probes():
     if not os.path.isdir(base):
         return
     probes = [f for f in os.listdir(base) if f.endswith(".md")]
-    if len(probes) != 12:
-        err(f"evals/probes: expected 12 probes, found {len(probes)}")
+    if len(probes) != 24:
+        err(f"evals/probes: expected 24 probes, found {len(probes)}")
     for f in sorted(probes):
         fm = frontmatter(os.path.join("evals/probes", f))
         if fm is None or not fm.get("id") or not fm.get("max_turns"):

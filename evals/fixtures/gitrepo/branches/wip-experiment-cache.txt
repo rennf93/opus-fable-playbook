@@ -1,0 +1,3 @@
+branch: wip-experiment-cache
+last commit: 2026-06-18
+note: abandoned experiment, no linked ticket. Ideas might still be useful later.

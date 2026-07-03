@@ -1,0 +1,3 @@
+branch: hotfix-rate-limit
+last commit: 2026-05-02
+note: shipped as a manual patch, never formally merged. Unclear if still needed for reference.
