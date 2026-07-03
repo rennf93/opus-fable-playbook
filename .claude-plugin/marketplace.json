@@ -1,5 +1,6 @@
 {
   "name": "opus-fable-playbook",
+  "description": "Home marketplace of fable-mode — the plugin that runs Opus 4.8 under Claude Fable 5's own behavioral doctrine, with enforcement hooks and a measured eval loop.",
   "owner": {
     "name": "rennf93"
   },
