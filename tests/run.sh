@@ -141,6 +141,16 @@ out="$("$ROOT/evals/run-probe.sh" "$ROOT/evals/probes/01-simple-question.md" fab
 if printf '%s' "$out" | grep -q -- "--plugin-dir" && printf '%s' "$out" | grep -q "\.iso\.settings\.json"; then
   PASS=$((PASS+1)); echo "PASS: fable dry-run loads plugin + isolation settings"
 else FAIL=$((FAIL+1)); echo "FAIL: fable dry-run loads plugin + isolation settings"; fi
+
+out="$("$ROOT/evals/run-probe.sh" "$ROOT/evals/probes/01-simple-question.md" claudemd "$TMP" 2>/dev/null)"; code=$?
+# $TMP-side verification that a CLAUDE.md landed in the workdir is impractical
+# here (run-probe.sh mktemp's its own $WORK and deletes it on exit) — assert
+# the mode is accepted and isolated like baseline, minus --plugin-dir instead.
+if [ $code -eq 0 ] && printf '%s' "$out" | grep -q -- "--settings" \
+   && printf '%s' "$out" | grep -q "\.iso\.settings\.json" \
+   && ! printf '%s' "$out" | grep -q -- "--plugin-dir"; then
+  PASS=$((PASS+1)); echo "PASS: claudemd dry-run uses isolation settings, no plugin-dir"
+else FAIL=$((FAIL+1)); echo "FAIL: claudemd dry-run uses isolation settings, no plugin-dir"; fi
 unset FABLE_EVAL_DRY_RUN
 
 out="$(python3 "$ROOT/evals/lib/isolation.py" --merge /nonexistent.json 2>/dev/null)"

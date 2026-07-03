@@ -535,6 +535,7 @@ work, not synthetic probes.
 | `FABLE_GOLDEN_MODEL` | `claude-fable-5` | Model for `golden` mode probe runs; regeneration must override to `claude-fable-5[1m]` (section 9). |
 | `FABLE_JUDGE_MODEL` | `claude-fable-5` | Model `judge.sh` uses to score candidates. |
 | `FABLE_JUDGE_CMD` | unset (falls back to a constructed `claude -p ...` command) | Wholesale override of the judge command; used by the test suite to inject a mock judge. |
+| `FABLE_CLAUDEMD_FILE` | `hooks/lib/doctrine-card.md` | For `run-probe.sh`'s `claudemd` mode (the instructions-only eval arm — baseline isolation, no `--plugin-dir`, doctrine text dropped in as the run's `CLAUDE.md` project memory): path to the file copied in. Override to eval any third-party CLAUDE.md doctrine text against the same probes, no code changes needed. |
 
 ## 12. Troubleshooting
 
