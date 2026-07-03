@@ -1,5 +1,29 @@
 # Changelog
 
+## Unreleased
+
+LOOP iteration 3 phase C: a third eval arm, `claudemd`, answers the "just a
+CLAUDE.md with extra fluff" claim directly. `evals/run-probe.sh PROBE
+claudemd OUTDIR` runs like `baseline` (isolated, no `--plugin-dir`, no
+profile merge) but drops the doctrine text into the run's workdir as
+`CLAUDE.md` before invoking `claude -p`, so the headless session picks it
+up as ordinary project memory — the same fenced block
+`docs/claude-md-snippet.md` already tells plugin-less users to paste, made
+runnable at scale. New env var `FABLE_CLAUDEMD_FILE` (default
+`hooks/lib/doctrine-card.md`) lets any third-party CLAUDE.md be evaled
+against the same 24-probe corpus with zero code changes (`docs/guide.md`
+§11, `evals/LOOP.md`). Three-way study on 48 fresh `claudemd` runs against
+the unchanged phase-B baseline/fable data
+(`docs/2026-07-04-claudemd-arm-report.md`): the hooks' only real,
+repeatable per-dimension win over text-alone is `turn_completion` (+0.06,
+zero spread both arms — traced to a mechanical "ends on a deferral instead
+of finishing" pattern `stop-gate.sh` blocks); the text alone shows two real
+*regressions* against plain baseline (`no_burial` −0.08,
+`delegation_parallelism` −0.04) that the hooks don't fix, so they're a
+doctrine-content issue, not a harness one; holistically, claudemd's
+closer-to-golden tie rate (29%) nearly matches fable's (30%), both well
+ahead of baseline's (19%). No doctrine changes. Tests 76→77.
+
 ## 0.1.3 — 2026-07-04
 
 LOOP iteration 3 phase B: eval corpus doubled to 24 probes (12 new probes,

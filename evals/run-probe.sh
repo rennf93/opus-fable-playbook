@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# run-probe.sh PROBE_FILE MODE OUTDIR   (MODE: baseline|fable|golden)
+# run-probe.sh PROBE_FILE MODE OUTDIR   (MODE: baseline|fable|golden|claudemd)
 set -eu
 PROBE="$1"; MODE="$2"; OUTDIR="$3"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -38,7 +38,15 @@ case "$MODE" in
             python3 "$ROOT/evals/lib/isolation.py" > "$WORK/.iso.settings.json"
             grep -q '"enabledPlugins"' "$WORK/.iso.settings.json" || { echo "fable-eval: isolation map generation failed; refusing to run unisolated" >&2; exit 1; }
             EXTRA="--settings $WORK/.iso.settings.json" ;;
-  *) echo "unknown mode: $MODE" >&2; exit 1 ;;
+  claudemd) MODEL="${FABLE_CANDIDATE_MODEL:-claude-opus-4-8}"
+            python3 "$ROOT/evals/lib/isolation.py" > "$WORK/.iso.settings.json"
+            grep -q '"enabledPlugins"' "$WORK/.iso.settings.json" || { echo "fable-eval: isolation map generation failed; refusing to run unisolated" >&2; exit 1; }
+            # Instructions-only arm: no --plugin-dir, no profile merge — just
+            # the doctrine text dropped in as project memory (CLAUDE.md), the
+            # same way the docs tell plugin-less users to adopt it by hand.
+            cp "${FABLE_CLAUDEMD_FILE:-$ROOT/hooks/lib/doctrine-card.md}" "$WORK/CLAUDE.md"
+            EXTRA="--settings $WORK/.iso.settings.json" ;;
+  *) echo "unknown mode: $MODE (expected baseline|fable|golden|claudemd)" >&2; exit 1 ;;
 esac
 
 OUT="$OUTDIR/$ID.$MODE.json"
