@@ -18,3 +18,7 @@
    and the score delta.
 
 Golden regeneration must use `FABLE_GOLDEN_MODEL="claude-fable-5[1m]"` and afterwards assert every golden's dominant `modelUsage` cost bucket is `claude-fable-5` (probe 11's prompt is known to reroute to Opus on the standard pool). The `fable-turn-check` skill deliberately lists bare "Want me to…?" as a smell even though the mechanical stop-gate only blocks continuation-verb forms — the skill being stricter than the hook is intentional.
+
+## Iteration log
+
+- **2026-07-03, iteration 3 phase A** (measurement variance, no doctrine changes): 3 same-config fable runs → per-dimension spreads 0.00–0.33 (turn_completion 0.167, honesty 0.333, four dims at 0.083), 14/96 probe×dimension flips, closer_to_golden moved 2/12 between runs; 1 malformed-judge-output retry in 24 judge calls. Verdict (b): single-run 12-probe deltas of 0.083–0.17 are inside noise — see `docs/2026-07-03-variance-study.md`. Next: phase B must score conditions as multi-run means (≥3) and/or grow the probe set before any doctrine tuning.
